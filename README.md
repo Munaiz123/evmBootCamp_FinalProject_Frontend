@@ -1,6 +1,5 @@
 # Onchain MegaBets 
-## EVM Final Project
-### Group 1 & 6 - 
+## EVM Final Project - Group 1 & 6
 
 
 ## Game Overview:
