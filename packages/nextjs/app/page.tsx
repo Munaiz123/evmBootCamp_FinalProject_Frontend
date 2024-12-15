@@ -1,71 +1,129 @@
 "use client";
 
-import Link from "next/link";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
+import React, { useState } from 'react';
 
-const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+const Home = () => {
+  const [selectedColor, setSelectedColor] = useState('');
+  const [betAmount, setBetAmount] = useState('');
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [result, setResult] = useState('');
+
+  // Simplified wallet address display for demo purposes
+  const demoAddress = "0x1234...5678";
+
+  const spinWheel = () => {
+    if (!selectedColor || !betAmount) {
+      alert('Please select a color and enter bet amount');
+      return;
+    }
+
+    setIsSpinning(true);
+    
+    // Simulate wheel spin for 3 seconds
+    setTimeout(() => {
+      const randomResult = Math.random() < 0.5 ? 'red' : 'white';
+      setResult(randomResult);
+      setIsSpinning(false);
+    }, 3000);
+  };
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-900 text-white">
       <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+        <div className="px-5 w-full max-w-2xl">
+          <h1 className="text-center mb-8">
+            <span className="block text-4xl font-bold">Spin The Wheel</span>
           </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
+          
+          <div className="flex justify-center items-center space-x-2 mb-8">
+            <p className="font-medium">Connected Address:</p>
+            <span className="font-mono bg-gray-800 rounded-lg px-2 py-1">
+              {demoAddress}
+            </span>
           </div>
 
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
+          {/* Game Controls */}
+          <div className="flex flex-col items-center gap-6 mb-8">
+            {/* Color Selection */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setSelectedColor('red')}
+                className={`w-24 h-12 rounded-lg ${
+                  selectedColor === 'red' 
+                    ? 'ring-4 ring-white' 
+                    : ''
+                } bg-red-600 hover:bg-red-700 transition-all`}
+              />
+              <button
+                onClick={() => setSelectedColor('white')}
+                className={`w-24 h-12 rounded-lg ${
+                  selectedColor === 'white' 
+                    ? 'ring-4 ring-red-600' 
+                    : ''
+                } bg-white hover:bg-gray-100 transition-all`}
+              />
+            </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
+            {/* Color Selection Labels */}
+            <div className="flex gap-4 text-sm">
+              <span className="w-24 text-center">Red</span>
+              <span className="w-24 text-center">White</span>
             </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
+
+            {/* Bet Amount Input */}
+            <input
+              type="number"
+              placeholder="Enter bet amount"
+              value={betAmount}
+              onChange={(e) => setBetAmount(e.target.value)}
+              className="px-4 py-2 border rounded-lg w-full max-w-xs bg-gray-800 border-gray-700 text-white"
+              min="0"
+              step="0.01"
+            />
           </div>
+
+          {/* Wheel Display */}
+          <div className="relative w-64 h-64 mx-auto mb-8">
+            <div 
+              className={`w-full h-full rounded-full border-8 border-gray-700 overflow-hidden transform ${
+                isSpinning ? 'animate-spin' : ''
+              }`}
+              style={{ 
+                transition: 'transform 3s cubic-bezier(0.4, 0, 0.2, 1)',
+                backgroundImage: 'conic-gradient(red 12.5%, white 12.5% 25%, red 25% 37.5%, white 37.5% 50%, red 50% 62.5%, white 62.5% 75%, red 75% 87.5%, white 87.5%)'
+              }}
+            />
+          </div>
+
+          {/* Spin Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={spinWheel}
+              disabled={isSpinning || !selectedColor || !betAmount}
+              className={`px-6 py-2 rounded-lg bg-blue-600 text-white font-bold
+                ${isSpinning || !selectedColor || !betAmount 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'hover:bg-blue-700'
+                } transition-all w-48`}
+            >
+              {isSpinning ? 'Spinning...' : 'Spin Wheel'}
+            </button>
+          </div>
+
+          {/* Result Display */}
+          {result && !isSpinning && (
+            <div className="mt-8 text-center">
+              <h2 className="text-2xl font-bold">
+                Result: <span className="capitalize">{result}</span>
+              </h2>
+              <p className="text-xl mt-2">
+                {result === selectedColor ? 'You Won! 🎉' : 'Try Again! 🎯'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
