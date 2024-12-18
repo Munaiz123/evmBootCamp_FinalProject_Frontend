@@ -37,13 +37,13 @@ To get started with Onchain MegaBets, follow the steps below:
 
 1. Clone the repository
 ```
-cd finalProject_Group1
-yarn install
+git clone https://github.com/Munaiz123/evmBootCamp_FinalProject_Frontend.git
+
 ```
 2. Install dependencies:
 
 ```
-cd finalProject_Group1
+cd evmBootCamp_FinalProject_Frontend
 yarn install
 ```
 
