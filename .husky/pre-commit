@@ -1,1 +1,4 @@
-yarn lint-staged --verbose
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npm test  # Replace this with your actual command
