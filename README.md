@@ -37,13 +37,11 @@ To get started with Onchain MegaBets, follow the steps below:
 
 1. Clone the repository
 ```
-cd finalProject_Group1
 yarn install
 ```
 2. Install dependencies:
 
 ```
-cd finalProject_Group1
 yarn install
 ```
 
