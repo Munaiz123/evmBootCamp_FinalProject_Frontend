@@ -7,11 +7,14 @@ const AdminPage = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [userAddress, setUserAddress] = useState('');
   const [tokenAmount, setTokenAmount] = useState('');
+  const [gameStatus, setGameStatus] = useState(true);
 
   // Demo balances - would come from blockchain in real implementation
   const demoKittyBalance = "1000000";
   const demoMasterFundBalance = "5000000";
-  const gameStatus = true;
+  const toggleGameStatus = () => {
+    setGameStatus(prevStatus => !prevStatus);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -25,7 +28,7 @@ const AdminPage = () => {
             <div className="flex items-center gap-4">
               <div className={`w-4 h-4 rounded-full ${gameStatus ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span>{gameStatus ? 'Active' : 'Inactive'}</span>
-              <button className="ml-auto px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">
+              <button className="ml-auto px-4 py-2 bg-blue-600 rounded hover:bg-blue-700" onClick={toggleGameStatus}>
                 {gameStatus ? 'Turn Off' : 'Turn On'}
               </button>
             </div>
