@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAccount } from "wagmi";
+import wheelAbi from "../contracts/Wheel.json";
+import { useAccount, useWriteContract } from "wagmi";
 
 const Home = () => {
   const [selectedColor, setSelectedColor] = useState("");
@@ -9,24 +10,31 @@ const Home = () => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState("");
   const { address, isConnected, chain } = useAccount();
+  const { writeContract } = useWriteContract();
 
   // Simplified wallet address display for demo purposes
   const demoAddress = "0x1234...5678";
+  const contractAddress = "0x33aee53756ceeFE20C3D3A37DCb9434884f5a3DD";
 
-  const spinWheel = () => {
+  const onSpinWheel = async () => {
     if (!selectedColor || !betAmount) {
       alert("Please select a color and enter bet amount");
       return;
     }
-
-    setIsSpinning(true);
-
-    // Simulate wheel spin for 3 seconds
-    setTimeout(() => {
-      const randomResult = Math.random() < 0.5 ? "red" : "white";
-      setResult(randomResult);
+    try {
+      console.log("This is calling the writeContract function...");
+      setIsSpinning(true);
+      writeContract({
+        abi: wheelAbi.abi,
+        address: contractAddress,
+        functionName: "bet",
+        args: [betAmount, selectedColor],
+      });
+    } catch (error) {
+      console.error("Error spinning the wheel:", error);
+    } finally {
       setIsSpinning(false);
-    }, 3000);
+    }
   };
 
   return (
@@ -100,7 +108,7 @@ const Home = () => {
           {/* Spin Button */}
           <div className="flex justify-center">
             <button
-              onClick={spinWheel}
+              onClick={onSpinWheel}
               disabled={isSpinning || !selectedColor || !betAmount}
               className={`px-6 py-2 rounded-lg bg-blue-600 text-white font-bold
                 ${
