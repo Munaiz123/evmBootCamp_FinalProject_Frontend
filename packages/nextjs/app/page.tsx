@@ -8,7 +8,7 @@ const Home = () => {
   const [betAmount, setBetAmount] = useState("");
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState("");
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
 
   // Simplified wallet address display for demo purposes
   const demoAddress = "0x1234...5678";
@@ -37,11 +37,14 @@ const Home = () => {
             <span className="block text-4xl font-bold">Spin The Wheel</span>
           </h1>
 
-          <div className="flex justify-center items-center space-x-2 mb-8">
+          <div className="flex justify-center items-center space-x-2 mb-2">
             <p className="font-medium">Connected Address:</p>
             <span className="font-mono bg-gray-800 rounded-lg px-2 py-1">
               {isConnected ? address : "Not connected"}
             </span>
+          </div>
+          <div className="flex justify-center items-center space-x-2 mb-8">
+            <p>Connected network: {chain?.name}</p>
           </div>
 
           {/* Game Controls */}
