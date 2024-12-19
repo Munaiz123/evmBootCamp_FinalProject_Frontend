@@ -63,7 +63,8 @@ const FaucetPage = () => {
             <li>2. Click the "Hit Me!" button above</li>
             <li>3. Confirm the transaction in your wallet</li>
             <li>4. Tokens will be sent to your wallet</li>
-            <li>5. Use these tokens to play games on our platform</li>
+            <li>5. Visit User page to transfer tokens to the Game Stash</li>
+            <li>6. Use the tokens in your Stash to play games on our platform</li>
           </ol>
         </div>
       </div>
