@@ -85,3 +85,8 @@ Run smart contract test with `yarn hardhat:test`
 - Edit your smart contracts in `packages/hardhat/contracts`
 - Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit your deployment scripts in `packages/hardhat/deploy`
+
+
+## Additional Documentation:
+More detailed design and overview:
+https://docs.google.com/document/d/1a44Wy67-09e7DyJ7jnbg84i5h92pleYy/edit?usp=sharing&ouid=108868073343089406736&rtpof=true&sd=true
