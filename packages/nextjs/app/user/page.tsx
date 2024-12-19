@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import luckyTokenAbi from "../../contracts/LuckyToken.json";
+import { contractAddresses } from "../../utils/contracts";
 import { useAccount, useReadContract } from "wagmi";
 
 const UserPage = () => {
@@ -14,7 +15,7 @@ const UserPage = () => {
     error,
     isLoading,
   } = useReadContract({
-    address: "0xF0b66cD3DE25C92B2759dBcb6F578380866406E4", // Replace with your token's address
+    address: contractAddresses.luckyToken, // Lucky Token addr
     abi: luckyTokenAbi.abi,
     functionName: "balanceOf",
     args: userAddress ? [userAddress] : undefined,

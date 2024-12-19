@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import wheelAbi from "../contracts/Wheel.json";
+import { contractAddresses } from "../utils/contracts";
 import { useAccount, useWriteContract } from "wagmi";
 
 const Home = () => {
@@ -14,7 +15,7 @@ const Home = () => {
 
   // Simplified wallet address display for demo purposes
   const demoAddress = "0x1234...5678";
-  const contractAddress = "0xBb94459184a7869A693857bE0190599B6865a181"; // Wheel Contract Addr
+  const contractAddress = contractAddresses.wheel; // Wheel Contract Addr
 
   const onSpinWheel = async () => {
     if (!selectedColor || !betAmount) {

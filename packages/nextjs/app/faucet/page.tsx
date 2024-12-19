@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import luckyTokenAbi from "../../contracts/LuckyToken.json";
+import { contractAddresses } from "../../utils/contracts";
 import { useWriteContract } from "wagmi";
 
 const FaucetPage = () => {
@@ -9,7 +10,7 @@ const FaucetPage = () => {
   const [lastRequestTime, setLastRequestTime] = useState<Date | null>(null);
   const { writeContract } = useWriteContract();
 
-  const contractAddress = "0xF0b66cD3DE25C92B2759dBcb6F578380866406E4"; // Lucky Token Contract Addr
+  const contractAddress = contractAddresses.luckyToken; // Lucky Token Contract Addr
 
   // const requestTokens = () => {
   //   setIsRequesting(true);
