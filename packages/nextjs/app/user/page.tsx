@@ -1,10 +1,30 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import luckyTokenAbi from "../../contracts/LuckyToken.json";
+import { contractAddresses } from "../../utils/contracts";
+import { useAccount, useReadContract } from "wagmi";
 
 const UserPage = () => {
-  const [depositAmount, setDepositAmount] = useState('');
-  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const { address: userAddress } = useAccount();
+
+  const {
+    data: rawBalance,
+    error,
+    isLoading,
+  } = useReadContract({
+    address: contractAddresses.luckyToken, // Lucky Token addr
+    abi: luckyTokenAbi.abi,
+    functionName: "balanceOf",
+    args: userAddress ? [userAddress] : undefined,
+  });
+
+  // Cast rawBalance to bigint if it's defined
+  const balance = rawBalance as bigint | undefined;
+  const decimals = 18; // Change if your token has different decimals
+  const formattedBalance = balance ? Number(balance) / 10 ** decimals : 0;
 
   // Demo balances - would come from blockchain in real implementation
   const demoWalletBalance = "1000";
@@ -19,7 +39,9 @@ const UserPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl mb-2">Wallet Balance</h2>
-            <p className="text-2xl font-mono">{demoWalletBalance} LKT</p>
+            <p className="text-2xl font-mono">
+              {isLoading ? "Loading..." : error ? `Error: ${error.message}` : `${formattedBalance} LKT`}
+            </p>
           </div>
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl mb-2">Stash Balance</h2>
@@ -37,12 +59,10 @@ const UserPage = () => {
                 type="number"
                 placeholder="Amount"
                 value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
+                onChange={e => setDepositAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700">
-                Deposit
-              </button>
+              <button className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700">Deposit</button>
             </div>
           </div>
 
@@ -54,12 +74,10 @@ const UserPage = () => {
                 type="number"
                 placeholder="Amount"
                 value={withdrawAmount}
-                onChange={(e) => setWithdrawAmount(e.target.value)}
+                onChange={e => setWithdrawAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700">
-                Withdraw
-              </button>
+              <button className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700">Withdraw</button>
             </div>
           </div>
         </div>
