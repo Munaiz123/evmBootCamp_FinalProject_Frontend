@@ -1,0 +1,5 @@
+export const contracts = {
+  luckyToken: "0xa1125c2b9F8f01ffcc842a7A1DF51e93896005Eb",
+  tokenHandler: "0x58609DfD729F3F3D965106f3c1ecF590806A6F6f",
+  wheel: "0xBb94459184a7869A693857bE0190599B6865a181",
+};

@@ -1,18 +1,40 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import luckyTokenAbi from "../../contracts/LuckyToken.json";
+import { useWriteContract } from "wagmi";
 
 const FaucetPage = () => {
   const [isRequesting, setIsRequesting] = useState(false);
   const [lastRequestTime, setLastRequestTime] = useState<Date | null>(null);
+  const { writeContract } = useWriteContract();
 
-  const requestTokens = () => {
-    setIsRequesting(true);
-    // Simulate token request
-    setTimeout(() => {
+  const contractAddress = "0xa1125c2b9F8f01ffcc842a7A1DF51e93896005Eb"; // Lucky Token Contract Addr
+
+  // const requestTokens = () => {
+  //   setIsRequesting(true);
+  //   // Simulate token request
+  //   setTimeout(() => {
+  //     setIsRequesting(false);
+  //     setLastRequestTime(new Date());
+  //   }, 2000);
+  // };
+
+  const onRequestTokens = async () => {
+    try {
+      setIsRequesting(true);
+      console.log("Calling requestTokens...");
+      writeContract({
+        abi: luckyTokenAbi.abi,
+        address: contractAddress,
+        functionName: "requestTokens",
+      });
+      console.log("Finished calling requestTokens...");
+    } catch (error) {
+      console.error("Error requesting tokens:", error);
+    } finally {
       setIsRequesting(false);
-      setLastRequestTime(new Date());
-    }, 2000);
+    }
   };
 
   return (
@@ -23,26 +45,20 @@ const FaucetPage = () => {
         <div className="bg-gray-800 p-8 rounded-lg">
           <div className="mb-8">
             <h2 className="text-xl mb-4">Request Free Tokens</h2>
-            <p className="text-gray-400 mb-6">
-              Get 100 LKT tokens to start playing. Limited to one request per day.
-            </p>
-            
+            <p className="text-gray-400 mb-6">Get 100 LKT tokens to start playing. Limited to one request per day.</p>
+
             <button
-              onClick={requestTokens}
+              onClick={onRequestTokens}
               disabled={isRequesting}
               className={`px-8 py-4 rounded-lg text-xl font-bold transition-all
-                ${isRequesting 
-                  ? 'bg-gray-600 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700'}`}
+                ${isRequesting ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
             >
-              {isRequesting ? 'Requesting...' : 'Hit Me!'}
+              {isRequesting ? "Requesting..." : "Hit Me!"}
             </button>
           </div>
 
           {lastRequestTime && (
-            <div className="text-sm text-gray-400">
-              Last request: {lastRequestTime.toLocaleString()}
-            </div>
+            <div className="text-sm text-gray-400">Last request: {lastRequestTime.toLocaleString()}</div>
           )}
         </div>
 

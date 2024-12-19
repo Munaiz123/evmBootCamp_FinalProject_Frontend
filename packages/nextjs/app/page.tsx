@@ -14,7 +14,7 @@ const Home = () => {
 
   // Simplified wallet address display for demo purposes
   const demoAddress = "0x1234...5678";
-  const contractAddress = "0x33aee53756ceeFE20C3D3A37DCb9434884f5a3DD";
+  const contractAddress = "0xBb94459184a7869A693857bE0190599B6865a181"; // Wheel Contract Addr
 
   const onSpinWheel = async () => {
     if (!selectedColor || !betAmount) {
@@ -22,7 +22,7 @@ const Home = () => {
       return;
     }
     try {
-      console.log("This is calling the writeContract function...");
+      console.log("Calling bet fnc...");
       setIsSpinning(true);
       writeContract({
         abi: wheelAbi.abi,
