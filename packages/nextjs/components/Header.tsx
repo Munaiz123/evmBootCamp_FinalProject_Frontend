@@ -27,10 +27,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "User",
     href: "/user",
   },
-  {
-    label: "Admin",
-    href: "/admin",
-  },
+  // {
+  //   label: "Admin",
+  //   href: "/admin",
+  // },
 ];
 
 export const HeaderMenuLinks = () => {
