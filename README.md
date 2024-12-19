@@ -30,13 +30,13 @@ When the contract is deployed, a specified number of tokens will be minted (e.g.
 ## Smart Contracts:
 
 LuckyToken
-https://sepolia.etherscan.io/address/0xa1125c2b9F8f01ffcc842a7A1DF51e93896005Eb
+https://sepolia.etherscan.io/address/0xF0b66cD3DE25C92B2759dBcb6F578380866406E4
 
 TokenHandler
-https://sepolia.etherscan.io/address/0x352eC232dEc669c21a06b5970749B3C7C9aCe77c
+https://sepolia.etherscan.io/address/0x7E0c9D26BE0Dd087aBc61A16a463BF8ac00C0289 
 
 Wheel
-https://sepolia.etherscan.io/address/0x33aee53756ceeFE20C3D3A37DCb9434884f5a3DD
+https://sepolia.etherscan.io/address/0x1267AC7e84F3999b233a3BCb3c5258c5f14436b7 
 
 
 
