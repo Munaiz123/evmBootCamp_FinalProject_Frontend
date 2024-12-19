@@ -4,7 +4,7 @@ import React, { useState, useEffect} from "react";
 import luckyTokenAbi from "../../contracts/LuckyToken.json";
 import TokenHandlerAbi from "../../contracts/TokenHandler.json";
 import { contractAddresses } from "../../utils/contracts";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { parseUnits, formatUnits } from 'viem';
 
 const UserPage = () => {
@@ -12,10 +12,12 @@ const UserPage = () => {
   
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [isApproving, setIsApproving] = useState(false);
   
   const [walletBalance, setWalletBalance] = useState<number>(0)
   const [stashBalance, setStashBalance] = useState<number>(0)
 
+  // Read contracts
   const { data: rawWalletBalance, error:walletError, isLoading:walletLoading } = useReadContract({
     address: contractAddresses.luckyToken,
     abi: luckyTokenAbi.abi,
@@ -24,11 +26,24 @@ const UserPage = () => {
   });
 
   const { data: rawStashBalance, error: stashError, isLoading: stashLoading } = useReadContract({
-    address: contractAddresses.tokenHandler, // Replace with your stash contract address
-    abi: TokenHandlerAbi.abi, // Replace with your stash contract ABI
+    address: contractAddresses.tokenHandler,
+    abi: TokenHandlerAbi.abi,
     functionName: "getStashBalance",
     args: userAddress ? [userAddress] : undefined,
   });
+
+  // Check allowance
+  const { data: allowance } = useReadContract({
+    address: contractAddresses.luckyToken,
+    abi: luckyTokenAbi.abi,
+    functionName: "allowance",
+    args: userAddress ? [userAddress, contractAddresses.tokenHandler] : undefined,
+  });
+
+  // Write contract hooks
+  const { writeContract: approve } = useWriteContract();
+  const { writeContract: deposit } = useWriteContract();
+  const { writeContract: withdraw } = useWriteContract();
 
   useEffect(() => {
     const decimals = 18;
@@ -44,17 +59,63 @@ const UserPage = () => {
       const formattedBalance = stashBalance ? Number(stashBalance) / 10 ** decimals : 0;
       setStashBalance(formattedBalance);
     }
+  }, [rawWalletBalance, rawStashBalance]);
 
-  }, [rawWalletBalance, walletLoading, walletError]);
-
- 
-
-  // Cast rawBalance to bigint if it's defined
+  const handleDeposit = async () => {
+    if (!depositAmount || !userAddress) return;
   
+    try {
+      const amountInWei = parseUnits(depositAmount, 18);
+  
+      // Check if approval is needed - add type assertion for allowance
+      if (!allowance || (allowance as bigint) < amountInWei) {
+        setIsApproving(true);
+        await approve({
+          address: contractAddresses.luckyToken,
+          abi: luckyTokenAbi.abi,
+          functionName: 'approve',
+          args: [contractAddresses.tokenHandler, amountInWei],
+        });
+        
+        // Remove .wait() since writeContract doesn't return a transaction
+        setIsApproving(false);
+      }
+  
+      // Deposit tokens
+      await deposit({
+        address: contractAddresses.tokenHandler,
+        abi: TokenHandlerAbi.abi,
+        functionName: 'depositWalletToStash',
+        args: [amountInWei],
+      });
+  
+      // Clear input
+      setDepositAmount("");
+    } catch (error) {
+      console.error('Deposit error:', error);
+      setIsApproving(false);
+    }
+  };
 
-  // Demo balances - would come from blockchain in real implementation
-  const demoWalletBalance = "1000";
-  const demoStashBalance = "300";
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || !userAddress) return;
+  
+    try {
+      const amountInWei = parseUnits(withdrawAmount, 18);
+      
+      await withdraw({
+        address: contractAddresses.tokenHandler,
+        abi: TokenHandlerAbi.abi,
+        functionName: 'withdrawStashToWallet',
+        args: [amountInWei],
+      });
+  
+      // Clear input
+      setWithdrawAmount("");
+    } catch (error) {
+      console.error('Withdrawal error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -90,7 +151,13 @@ const UserPage = () => {
                 onChange={e => setDepositAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700" onClick={()=> console.log('HELLO DEPOSITING')} >Deposit</button>
+              <button 
+                className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700 disabled:bg-gray-600"
+                onClick={handleDeposit}
+                disabled={isApproving || !depositAmount || Number(depositAmount) > walletBalance}
+              >
+                {isApproving ? 'Approving...' : 'Deposit'}
+              </button>
             </div>
           </div>
 
@@ -105,7 +172,13 @@ const UserPage = () => {
                 onChange={e => setWithdrawAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700">Withdraw</button>
+              <button 
+                className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700 disabled:bg-gray-600"
+                onClick={handleWithdraw}
+                disabled={!withdrawAmount || Number(withdrawAmount) > stashBalance}
+              >
+                Withdraw
+              </button>
             </div>
           </div>
         </div>
