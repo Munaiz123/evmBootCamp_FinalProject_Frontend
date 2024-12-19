@@ -1,34 +1,83 @@
+// pages/UserPage.tsx
 "use client";
 
 import React, { useState } from "react";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { parseUnits } from 'viem';
 import luckyTokenAbi from "../../contracts/LuckyToken.json";
+import TokenHandlerAbi from "../../contracts/TokenHandler.json";
 import { contractAddresses } from "../../utils/contracts";
-import { useAccount, useReadContract } from "wagmi";
+import WalletBalance from "./WalletBalance";
+import StashBalance from "./StashBalance";
 
 const UserPage = () => {
+  const { address: userAddress, isConnected } = useAccount();
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const { address: userAddress } = useAccount();
+  const [isApproving, setIsApproving] = useState(false);
 
-  const {
-    data: rawBalance,
-    error,
-    isLoading,
-  } = useReadContract({
-    address: contractAddresses.luckyToken, // Lucky Token addr
+  // Check allowance
+  const { data: allowance } = useReadContract({
+    address: contractAddresses.luckyToken,
     abi: luckyTokenAbi.abi,
-    functionName: "balanceOf",
-    args: userAddress ? [userAddress] : undefined,
+    functionName: "allowance",
+    args: userAddress ? [userAddress, contractAddresses.tokenHandler] : undefined,
   });
 
-  // Cast rawBalance to bigint if it's defined
-  const balance = rawBalance as bigint | undefined;
-  const decimals = 18; // Change if your token has different decimals
-  const formattedBalance = balance ? Number(balance) / 10 ** decimals : 0;
+  // Write contract hooks
+  const { writeContract: approve } = useWriteContract();
+  const { writeContract: deposit } = useWriteContract();
+  const { writeContract: withdraw } = useWriteContract();
 
-  // Demo balances - would come from blockchain in real implementation
-  const demoWalletBalance = "1000";
-  const demoStashBalance = "500";
+  const handleDeposit = async () => {
+    if (!depositAmount || !userAddress) return;
+
+    try {
+      const amountInWei = parseUnits(depositAmount, 18);
+
+      if (!allowance || (allowance as bigint) < amountInWei) {
+        setIsApproving(true);
+        await approve({
+          address: contractAddresses.luckyToken,
+          abi: luckyTokenAbi.abi,
+          functionName: 'approve',
+          args: [contractAddresses.tokenHandler, amountInWei],
+        });
+        setIsApproving(false);
+      }
+
+      await deposit({
+        address: contractAddresses.tokenHandler,
+        abi: TokenHandlerAbi.abi,
+        functionName: 'depositWalletToStash',
+        args: [amountInWei],
+      });
+
+      setDepositAmount("");
+    } catch (error) {
+      console.error('Deposit error:', error);
+      setIsApproving(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || !userAddress) return;
+
+    try {
+      const amountInWei = parseUnits(withdrawAmount, 18);
+      
+      await withdraw({
+        address: contractAddresses.tokenHandler,
+        abi: TokenHandlerAbi.abi,
+        functionName: 'withdrawStashToWallet',
+        args: [amountInWei],
+      });
+
+      setWithdrawAmount("");
+    } catch (error) {
+      console.error('Withdrawal error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -37,20 +86,12 @@ const UserPage = () => {
 
         {/* Balance Display */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-xl mb-2">Wallet Balance</h2>
-            <p className="text-2xl font-mono">
-              {isLoading ? "Loading..." : error ? `Error: ${error.message}` : `${formattedBalance} LKT`}
-            </p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-xl mb-2">Stash Balance</h2>
-            <p className="text-2xl font-mono">{demoStashBalance} LKT</p>
-          </div>
+          <WalletBalance />
+          <StashBalance />
         </div>
 
         {/* Transaction Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        { isConnected && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Deposit Section */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl mb-4">Deposit to Stash</h2>
@@ -62,7 +103,13 @@ const UserPage = () => {
                 onChange={e => setDepositAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700">Deposit</button>
+              <button 
+                className="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-700 disabled:bg-gray-600"
+                onClick={handleDeposit}
+                disabled={isApproving || !depositAmount}
+              >
+                {isApproving ? 'Approving...' : 'Deposit'}
+              </button>
             </div>
           </div>
 
@@ -77,10 +124,16 @@ const UserPage = () => {
                 onChange={e => setWithdrawAmount(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 rounded"
               />
-              <button className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700">Withdraw</button>
+              <button 
+                className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700 disabled:bg-gray-600"
+                onClick={handleWithdraw}
+                disabled={!withdrawAmount}
+              >
+                Withdraw
+              </button>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
