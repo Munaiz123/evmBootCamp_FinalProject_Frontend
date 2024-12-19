@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import wheelAbi from "../contracts/Wheel.json";
 import { contractAddresses } from "../utils/contracts";
 import { useAccount, useWriteContract } from "wagmi";
+import StashBalance from "./user/StashBalance";
 
 const Home = () => {
   const [selectedColor, setSelectedColor] = useState("");
@@ -13,9 +14,7 @@ const Home = () => {
   const { address, isConnected, chain } = useAccount();
   const { writeContract } = useWriteContract();
 
-  // Simplified wallet address display for demo purposes
-  const demoAddress = "0x1234...5678";
-  const contractAddress = contractAddresses.wheel; // Wheel Contract Addr
+  const contractAddress = contractAddresses.wheel;
 
   const onSpinWheel = async () => {
     if (!selectedColor || !betAmount) {
@@ -47,17 +46,32 @@ const Home = () => {
           </h1>
 
           <div className="flex justify-center items-center space-x-2 mb-2">
-            <p className="font-medium">Connected Address:</p>
             <span className="font-mono bg-gray-800 rounded-lg px-2 py-1">
-              {isConnected ? address : "Not connected"}
+              {isConnected ? "Wallet Connected!": "Connect Wallet to Start Playing"}
             </span>
-          </div>
-          <div className="flex justify-center items-center space-x-2 mb-8">
-            <p>Connected network: {chain?.name}</p>
           </div>
 
           {/* Game Controls */}
-          <div className="flex flex-col items-center gap-6 mb-8">
+          {isConnected && <div className="flex flex-col items-center gap-6 mb-8">
+            {/* Stash Balance */}
+            <div className="w-full max-w-xs">
+              <StashBalance />
+            </div>
+
+            {/* Bet Amount Input */}
+            <div className="w-full max-w-xs space-y-2">
+              <input
+                type="number"
+                placeholder="Enter bet amount"
+                value={betAmount}
+                onChange={e => setBetAmount(e.target.value)}
+                className="px-4 py-2 border rounded-lg w-full bg-gray-800 border-gray-700 text-white"
+                min="1"
+                step="1"
+              />
+              <p className="text-xs text-gray-400">Minimum bet: 1 LKT</p>
+            </div>
+
             {/* Color Selection */}
             <div className="flex gap-4">
               <button
@@ -80,17 +94,7 @@ const Home = () => {
               <span className="w-24 text-center">White</span>
             </div>
 
-            {/* Bet Amount Input */}
-            <input
-              type="number"
-              placeholder="Enter bet amount"
-              value={betAmount}
-              onChange={e => setBetAmount(e.target.value)}
-              className="px-4 py-2 border rounded-lg w-full max-w-xs bg-gray-800 border-gray-700 text-white"
-              min="0"
-              step="0.01"
-            />
-          </div>
+          </div>}
 
           {/* Wheel Display */}
           <div className="relative w-64 h-64 mx-auto mb-8">
@@ -110,10 +114,12 @@ const Home = () => {
           <div className="flex justify-center">
             <button
               onClick={onSpinWheel}
-              disabled={isSpinning || !selectedColor || !betAmount}
+              disabled={isSpinning || !selectedColor || !betAmount || Number(betAmount) < 1}
               className={`px-6 py-2 rounded-lg bg-blue-600 text-white font-bold
                 ${
-                  isSpinning || !selectedColor || !betAmount ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+                  isSpinning || !selectedColor || !betAmount || Number(betAmount) < 1 
+                  ? "opacity-50 cursor-not-allowed" 
+                  : "hover:bg-blue-700"
                 } transition-all w-48`}
             >
               {isSpinning ? "Spinning..." : "Spin Wheel"}
