@@ -9,7 +9,7 @@ const FaucetPage = () => {
   const [lastRequestTime, setLastRequestTime] = useState<Date | null>(null);
   const { writeContract } = useWriteContract();
 
-  const contractAddress = "0xa1125c2b9F8f01ffcc842a7A1DF51e93896005Eb"; // Lucky Token Contract Addr
+  const contractAddress = "0xF0b66cD3DE25C92B2759dBcb6F578380866406E4"; // Lucky Token Contract Addr
 
   // const requestTokens = () => {
   //   setIsRequesting(true);
