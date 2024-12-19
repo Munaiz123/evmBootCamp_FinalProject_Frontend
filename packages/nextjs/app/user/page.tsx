@@ -11,7 +11,7 @@ import WalletBalance from "./WalletBalance";
 import StashBalance from "./StashBalance";
 
 const UserPage = () => {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, isConnected } = useAccount();
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [isApproving, setIsApproving] = useState(false);
@@ -91,7 +91,7 @@ const UserPage = () => {
         </div>
 
         {/* Transaction Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        { isConnected && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Deposit Section */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl mb-4">Deposit to Stash</h2>
@@ -133,7 +133,7 @@ const UserPage = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );

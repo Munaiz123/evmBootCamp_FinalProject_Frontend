@@ -5,7 +5,7 @@ import TokenHandlerAbi from "../../contracts/TokenHandler.json";
 import { contractAddresses } from "../../utils/contracts";
 
 const StashBalance = () => {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, isConnected} = useAccount();
   const [stashBalance, setStashBalance] = useState<number>(0);
 
   const { data: rawStashBalance, error: stashError, isLoading: stashLoading } = useReadContract({
@@ -28,9 +28,9 @@ const StashBalance = () => {
   return (
     <div className="bg-gray-800 p-6 rounded-lg">
       <h2 className="text-xl mb-2">Stash Balance</h2>
-      <p className="text-2xl font-mono">
+     {isConnected ? <p className="text-2xl font-mono">
         {stashLoading ? "Loading..." : stashError ? `Error: ${stashError.message}` : `${stashBalance} LKT`}
-      </p>
+      </p> : "Connect Wallet to see LKT Balance"}
     </div>
   );
 };

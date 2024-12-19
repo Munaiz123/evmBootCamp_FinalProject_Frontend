@@ -5,7 +5,7 @@ import luckyTokenAbi from "../../contracts/LuckyToken.json";
 import { contractAddresses } from "../../utils/contracts";
 
 const WalletBalance = () => {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, isConnected} = useAccount();
   const [walletBalance, setWalletBalance] = useState<number>(0);
 
   const { data: rawWalletBalance, error: walletError, isLoading: walletLoading } = useReadContract({
@@ -28,9 +28,9 @@ const WalletBalance = () => {
   return (
     <div className="bg-gray-800 p-6 rounded-lg">
       <h2 className="text-xl mb-2">Wallet Balance</h2>
-      <p className="text-2xl font-mono">
+      {isConnected ? <p className="text-2xl font-mono">
         {walletLoading ? "Loading..." : walletError ? `Error: ${walletError.message}` : `${walletBalance} LKT`}
-      </p>
+      </p> : "Connect Wallet to see LKT Balance"}
     </div>
   );
 };

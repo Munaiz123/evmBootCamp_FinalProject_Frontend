@@ -7,11 +7,12 @@ import { useAccount, useWriteContract } from "wagmi";
 import StashBalance from "./user/StashBalance";
 
 const Home = () => {
+  const { address, isConnected, chain } = useAccount();
+  
   const [selectedColor, setSelectedColor] = useState("");
   const [betAmount, setBetAmount] = useState("");
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState("");
-  const { address, isConnected, chain } = useAccount();
   const { writeContract } = useWriteContract();
 
   const contractAddress = contractAddresses.wheel;
